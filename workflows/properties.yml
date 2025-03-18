@@ -71,7 +71,7 @@ jobs:
         curl -X PATCH -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
         -H "Accept: application/vnd.github.mercy-preview+json" \
         -H "Content-Type: application/json" \
-        https://github.prodlib.travp.net/api/v3/repos/${{ github.repository }}/properties/values \
+         https://github.com/orgs/Metrics9/repositories/${{ github.repository }}/properties/values \
         -d "{\"properties\": ${{ env.params_json }}}"
         
     # Update Custom Properties (this is a separate task)
