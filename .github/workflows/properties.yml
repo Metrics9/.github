@@ -1,0 +1,22 @@
+name: Update Custom Properties
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  update-properties:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Update Custom Properties
+      run: |
+        curl -X PATCH \
+        -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+        -d '{"name": "new-custom-property", "value": "new-value"}' \
+        https://github.com/orgs/Metrics9/repositories/${{ github.repository }}/contents/path/to/config/file
