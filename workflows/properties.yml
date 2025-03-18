@@ -1,29 +1,27 @@
 name: Update Repository Properties
-
 on:
-  workflow_call:
-
+  workflow_call: null
 jobs:
   update-properties:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      # Get repository language dynamically
       - name: Get repository language
-        run: |
+        run: >
           language=$(curl -s -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+
           https://api.github.com/repos/${{ github.repository }}/languages | jq -r 'keys | join(",")')
+
 
           if [[ -z "$language" ]]; then
             language="unknown"
           fi
 
-          echo "language=$language" >> $GITHUB_ENV
-          echo "Detected Language: $language"
 
-      # Check if config file exists
+          echo "language=$language" >> $GITHUB_ENV
+
+          echo "Detected Language: $language"
       - name: Check if file exists
         run: |
           FILE_PATH=".github/workflows/properties.yml"
@@ -32,12 +30,13 @@ jobs:
           else
             echo "file_exists=false" >> $GITHUB_ENV
           fi
-
-      # Extract multiple parameters dynamically + Add language property
       - name: Get multiple parameter values
-        run: |
-          PARAMS=("run_test" "code_quality_analysis" "security_scan" "performance_test") # Add more parameters as needed
+        run: >
+          PARAMS=("run_test" "code_quality_analysis" "security_scan"
+          "performance_test") # Add more parameters as needed
+
           PARAMS_JSON="[{\"property_name\":\"technology\",\"value\":\"${{ env.language }}\"}]," # Include language first
+
 
           if [[ "${{ env.file_exists }}" == "true" ]]; then
             for param in "${PARAMS[@]}"; do
@@ -57,15 +56,20 @@ jobs:
             done
           fi
 
-          # Remove last comma for valid JSON format
-          PARAMS_JSON="[${PARAMS_JSON%,}]"
-          echo "params_json=$PARAMS_JSON" >> $GITHUB_ENV
 
-      # Update repository properties dynamically
+          # Remove last comma for valid JSON format
+
+          PARAMS_JSON="[${PARAMS_JSON%,}]"
+
+          echo "params_json=$PARAMS_JSON" >> $GITHUB_ENV
       - name: Update repository properties
-        run: |
+        run: >
           curl -X PATCH -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+
           -H "Accept: application/vnd.github.mercy-preview+json" \
+
           -H "Content-Type: application/json" \
+
           https://github.prodlib.travp.net/api/v3/repos/${{ github.repository }}/properties/values \
+
           -d "{\"properties\": ${{ env.params_json }}}"
