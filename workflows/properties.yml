@@ -30,7 +30,7 @@ jobs:
     # Check if config file exists
     - name: Check if file exists
       run: |
-        FILE_PATH=".github/config.yaml"
+        FILE_PATH=".github/properties.yaml"
         if [[ -f "$FILE_PATH" ]]; then
           echo "file_exists=true" >> $GITHUB_ENV
         else
